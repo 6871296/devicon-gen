@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8">
+        <title>DevIcon生成器</title>
+        <script>
+            function gen(){
+                const name = document.getElementById('input').textContent;
+                const iconUrl = `https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/${name}/${name}-original.svg`;
+                const iconDisplay = document.getElementById('iconDisplay').src = iconUrl;
+                document.getElementById('iconDisplay').style.display = 'block';
+                document.getElementById('urlDisplay').textContent = iconUrl;
+                console.log('已生成软件包'+name+'的DevIcon URL：' + iconUrl);
+            }
+            function copy(){
+                const name = document.getElementById('input').textContent;
+                if(name === ''){
+                    alert('未输入软件包名称！');
+                    console.log('未输入软件包名称，复制操作取消');
+                    return;
+                }else if(name===!''){
+                    const name = document.getElementById('input').textContent;
+                    const iconUrl = `https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/${name}/${name}-original.svg`;
+                    document.getElementById('iconDisplay').src = iconUrl;
+                    if(!navigator.clipboard){
+                        alert('浏览器版本过旧，不支持自动复制，请手动复制');
+                        console.log('浏览器不支持Clipboard API，自动复制失败');
+                        return;
+                    }else{
+                        navigator.clipboard.writeText(iconUrl);
+                        document.getElementById('generateBtn').textContent = '✅已复制';
+                        setTimeout(() => {
+                            document.getElementById('generateBtn').textContent = '生成图标';
+                        }, 2000);
+                        console.log('已复制软件包'+name+'的DevIcon URL：'+iconUrl);
+                    }
+                }
+            }
+            document.getElementById('generateBtn').addEventListener('click',gen());
+            document.getElementById('copyURLBtn').addEventListener('click',copy());
+        </script><!--写完后的唯一感觉：JavaScript Debug太难了！！！但这是我自学的第一门语言-->
+    </head>
+    <body>
+        <h1>DevIcon生成器</h1>
+        <input type="text" id="input" placeholder="输入软件包名称"><br>
+        <span id="urlDisplay" style="margin-left:20px;">URL：未输入</span><br>
+        <button id="generateBtn">生成图标</button><button id="copyURLBtn">复制URL</button>
+        <img id="iconDisplay" alt="DevIcon图标将显示在这里" style="display:none; margin-top:20px;">
+    </body>
+</html>
