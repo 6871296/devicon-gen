@@ -49,7 +49,9 @@
                 margin:10px 10px 10px 20px;
             }
             #iconDisplay{
-                margin-top: 20px;
+                margin: 20px auto;
+                max-width: 200px;
+                max-height: 200px;
             }
         </style>
     </head>
@@ -58,16 +60,35 @@
             <img src="https://avatars.githubusercontent.com/u/66767815?s=200&v=4" height="40" width="40">
             DevIcon<strong>生成器</strong>
         </h1>
-        <font id="JSEnableCheck" color="red">JavaScript似乎未启用，请启用后刷新再试</font><!--写noscript不能展示其他内容-->
+        <p>
+            本项目可以通过软件包名称获取DevIcon图标集中的图标，只要图标存在就可以正常生成。<br>
+            如果无法生成，可以看看你是不是打错字了，或者图标不存在。<br>
+            <a href="https://github.com/devicons/devicon" style="color:green">DevIcon图标集</a>
+        </p>
+        <font id="JSEnableCheck" color="red">JavaScript似乎未启用，请启用后刷新再试！<br></font><!--写noscript不能展示其他内容-->
         <input type="text" id="input" placeholder="输入软件包名称"><br>
-        <span id="urlDisplay" style="color:#206029">URL：未输入</span><br>
-        <button onclick="gen()">生成图标</button> <button id="generateBtn" onclick="copy()">复制URL</button>
+        <span id="urlDisplay" style="color:#206029">URL未输入</span><br>
+        <span id="errDisplay" style="color:red; display:none;"></span>
+        <button id="generateBtn" onclick="gen()">生成图标</button> <button id="copyBtn" onclick="copy()">复制URL</button>
         <img id="iconDisplay" alt="DevIcon图标将显示在这里" style="display:none;">
         <script>
             document.getElementById('JSEnableCheck').style.display = 'none';
             console.log('JavaScript已启用，页面加载成功');
             function gen(){
+                document.getElementById('generateBtn').textContent = '生成图标';
+                document.getElementById('errDisplay').style.display = 'none';
                 const name = document.getElementById('input').value;
+                if(name === ''){
+                    document.getElementById('generateBtn').textContent = '❌生成失败';
+                    document.getElementById('errDisplay').style.display = 'block';
+                    document.getElementById('errDisplay').textContent = '未输入软件包名称！';
+                    console.log('未输入软件包名称，生成操作取消');
+                    setTimeout(() => {
+                        document.getElementById('generateBtn').textContent = '生成图标';
+                        document.getElementById('errDisplay').style.display = 'none';
+                    }, 3000);
+                    return;
+                }
                 const iconUrl = 'https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/'+name+'/'+name+'-original.svg';
                 const iconDisplay = document.getElementById('iconDisplay').src = iconUrl;
                 document.getElementById('iconDisplay').style.display = 'block';
@@ -75,25 +96,44 @@
                 console.log('已生成软件包'+name+'的DevIcon URL：' + iconUrl);
             }
             function copy(){
+                document.getElementById('copyBtn').textContent = '复制URL';
+                document.getElementById('errDisplay').style.display = 'none';
                 const name = document.getElementById('input').value;
                 if(name === ''){
-                    alert('未输入软件包名称！');
+                    document.getElementById('copyBtn').textContent = '❌复制失败';
+                    document.getElementById('errDisplay').style.display = 'block';
+                    document.getElementById('errDisplay').textContent = '未输入软件包名称！';
+                    setTimeout(() => {
+                        document.getElementById('copyBtn').textContent = '复制URL';
+                        document.getElementById('errDisplay').style.display = 'none';
+                    }, 3000);
                     console.log('未输入软件包名称，复制操作取消');
                     return;
-                }else if(name===!''){
-                    const iconUrl = `https://raw.githubusercontent.com/devicons/devicon/refs/heads/master/icons/${name}/${name}-original.svg`;
-                    document.getElementById('iconDisplay').src = iconUrl;
-                    if(!navigator.clipboard){
-                        alert('浏览器版本过旧，不支持自动复制，请手动复制');
-                        document.getElementById('generateBtn').textContent = '❌复制失败';
+                }else{
+                    const iconUrl = document.getElementById('iconDisplay').src;
+                    if(!navigator || !navigator.clipboard){
+                        document.getElementById('errDisplay').style.display = 'block';
+                        document.getElementById('errDisplay').textContent = '浏览器版本过旧，无法复制！';
+                        document.getElementById('copyBtn').textContent = '❌复制失败';
+                        setTimeout(() => {
+                            document.getElementById('copyBtn').textContent = '复制URL';
+                            document.getElementById('errDisplay').style.display = 'none';
+                        }, 3000);
                         console.log('浏览器不支持Clipboard API，自动复制失败');
                         return;
                     }else{
-                        navigator.clipboard.writeText(iconUrl);
-                        document.getElementById('generateBtn').textContent = '✅已复制';
+                        navigator.clipboard.writeText(iconUrl).then(() => {}, () => {
+                            document.getElementById('copyBtn').textContent = '❌复制失败';
+                            setTimeout(() => {
+                                document.getElementById('copyBtn').textContent = '复制URL';
+                            }, 3000);
+                            console.log('Clipboard API写入失败，自动复制失败');
+                            return;
+                        });
+                        document.getElementById('copyBtn').textContent = '✅已复制';
                         setTimeout(() => {
-                            document.getElementById('generateBtn').textContent = '生成图标';
-                        }, 2000);
+                            document.getElementById('copyBtn').textContent = '复制URL';
+                        }, 3000);
                         console.log('已复制软件包'+name+'的DevIcon URL：'+iconUrl);
                     }
                 }
